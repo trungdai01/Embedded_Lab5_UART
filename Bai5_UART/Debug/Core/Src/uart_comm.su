@@ -1,0 +1,3 @@
+../Core/Src/uart_comm.c:19:6:str_cpy	24	static
+../Core/Src/uart_comm.c:27:6:comm_parser_fsm	8	static
+../Core/Src/uart_comm.c:72:6:uart_communication	24	static
