@@ -10,5 +10,4 @@
 ../Core/Src/global.c:304:6:alert	8	static
 ../Core/Src/global.c:318:6:save_ClockSettings	8	static
 ../Core/Src/global.c:329:6:save_AlarmSettings	8	static
-../Core/Src/global.c:335:6:error_Input	32	static
-../Core/Src/global.c:351:6:uart_Flag	16	static
+../Core/Src/global.c:335:6:uart_Flag	32	static

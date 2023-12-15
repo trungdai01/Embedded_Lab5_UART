@@ -41,6 +41,7 @@ void fsm_alarm(void)
                 uart_Rs232SendString("Request hours of alarm: ");
                 isSendStr = 1;
             }
+            uart_Flag("Request hours of alarm: ");
             blinkyAlarm(HOUR_A);
             break;
         default:
@@ -58,15 +59,18 @@ void fsm_alarm(void)
                 if (counterHour_Alarm >= 24)
                     counterHour_Alarm = 0;
             }
-            if (uart_input == 1)
+            if (uart_valid == 1)
             {
                 counterHour_Alarm = number;
                 if (counterHour_Alarm >= 24)
                 {
                     counterHour_Alarm = counterHour_Alarm % 24;
                 }
-                uart_input = 0;
+                uart_valid = 0;
                 auto_change_mode = 1;
+                counter_TimeOut = 0;
+                flag_TimeOut = 0;
+                flag_Error_TimeOut = 0;
             }
             break;
         default:
@@ -101,6 +105,7 @@ void fsm_alarm(void)
                 uart_Rs232SendString("Request mins of alarm: ");
                 isSendStr = 1;
             }
+            uart_Flag("Request hours of alarm: ");
             blinkyAlarm(MIN_A);
             break;
         default:
@@ -118,15 +123,18 @@ void fsm_alarm(void)
                 if (counterMin_Alarm >= 60)
                     counterMin_Alarm = 0;
             }
-            if (uart_input == 1)
+            if (uart_valid == 1)
             {
                 counterMin_Alarm = number;
                 if (counterMin_Alarm >= 60)
                 {
                     counterMin_Alarm = counterMin_Alarm % 60;
                 }
-                uart_input = 0;
+                uart_valid = 0;
                 auto_change_mode = 1;
+                counter_TimeOut = 0;
+                flag_TimeOut = 0;
+                flag_Error_TimeOut = 0;
             }
             break;
         default:

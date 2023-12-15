@@ -107,11 +107,13 @@ extern uint8_t counter_alert2;
 
 extern int isSendStr;
 extern int uart_input;
+extern int uart_valid;
 extern int auto_change_mode;
-extern uint8_t counterTimeOut;
+extern uint8_t counter_TimeOut;
 extern uint8_t counter_uartAlert;
+extern int flag_Invalid;
 extern int flag_TimeOut;
-extern int flag_Error;
+extern int flag_Error_TimeOut;
 extern int number;
 
 
@@ -129,7 +131,6 @@ void updateAlarm();
 void alert();
 void save_ClockSettings();
 void save_AlarmSettings();
-void error_Input(int);
 void uart_Flag(char *);
 
 #endif /* INC_GLOBAL_H_ */

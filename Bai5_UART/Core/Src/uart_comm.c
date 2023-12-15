@@ -45,7 +45,14 @@ void comm_parser_fsm(void)
         }
         if (buffer_byte[index_buffer - 1] == '#')
         {
-
+            for (int i = 0; i < index_cmd_data; i++)
+            {
+                if (command_data[i] <= 47 || command_data[i] >= 58)
+                {
+                    flag_Invalid = 1;
+                    break;
+                }
+            }
             str_cpy(buffer_byte, empty_str);
             index_buffer = 0;
             uart_status = END_UART;
@@ -78,18 +85,26 @@ void uart_communication(void)
     case END_UART:
         if (command_flag == 1)
         {
+            command_flag = 0;
             str_cpy(tempUart, empty_str);
             str_cpy(tempUart, command_data);
             lcd_Fill(0, 40, 240, 70, BLACK);
-            uart_input = 1;
-            number = atoi((void *)tempUart);
             lcd_ShowStr(70, 50, "INPUT: ", GREEN, BLACK, 16, 1);
             lcd_ShowStr(140, 50, tempUart, GREEN, BLACK, 16, 1);
-            command_flag = 0;
+            if (flag_Invalid == 0)
+            {
+                uart_valid = 1;
+                number = atoi((void *)tempUart);
+                // number = (int)tempUart;
+                lcd_Fill(0, 70, 240, 100, BLACK);
+                lcd_ShowStr(70, 70, "NUMBER: ", GREEN, BLACK, 16, 1);
+                lcd_ShowStr(140, 70, tempUart, GREEN, BLACK, 16, 1);
+            }
+            flag_TimeOut = 0;
+            counter_TimeOut = 0;
         }
         break;
     default:
         break;
     }
 }
-

@@ -50,7 +50,6 @@ int statusMIN_ALARM_3 = 0;
 int mode = 0;
 int mode_alarm = 0;
 
-
 uint8_t counterSec = 0;
 uint8_t counterMin = 0;
 uint8_t counterHour = 0;
@@ -66,16 +65,17 @@ uint8_t counter_blink2 = 0;
 uint8_t counter_alert1 = 0;
 uint8_t counter_alert2 = 0;
 
-
 // LAB 5 Variables
 
 int isSendStr = 0;
 int uart_input = 0;
+int uart_valid = 0;
 int auto_change_mode = 0;
-uint8_t counterTimeOut = 0;
+uint8_t counter_TimeOut = 0;
 uint8_t counter_uartAlert = 0;
+int flag_Invalid = 0;
 int flag_TimeOut = 0;
-int flag_Error = 0;
+int flag_Error_TimeOut = 0;
 int number = 0;
 
 uint8_t tempUart[MAX_BUFFER_SIZE] = {0};
@@ -130,11 +130,11 @@ void init_value(void)
     counter_alert2 = INIT;
 
     counter_uartAlert = 0;
-    counterTimeOut = 0;
+    counter_TimeOut = 0;
     flag_TimeOut = 0;
 
     isSendStr = 0;
-    flag_Error = 0;
+    flag_Error_TimeOut = 0;
 }
 
 void init_counter(void)
@@ -332,32 +332,32 @@ void save_AlarmSettings(void)
     ds3231_Write(ADDRESS_MIN_ALARM, counterMin_Alarm);
 }
 
-void error_Input(int flag_num)
-{
-    if (flag_num != 1)
-    {
-        lcd_StrCenter(0, 270, "ERROR!!!", GREEN, BLACK, 16, 1);
-        counter_uartAlert = (counter_uartAlert + 1) % 60;
-        if (counter_uartAlert == 0)
-        {
-            flag_Error = flag_num;
-            return;
-        }
-    }
-    else
-        flag_Error = flag_num;
-}
-
 void uart_Flag(char *str)
 {
-    counterTimeOut = (counterTimeOut + 1) % 200;
-    if (counterTimeOut == 0)
+    counter_TimeOut = (counter_TimeOut + 1) % 200;
+    if (counter_TimeOut == 0)
     {
         flag_TimeOut++;
         uart_Rs232SendString(str);
     }
     if (flag_TimeOut == 3)
     {
-        error_Input(2);
+        counter_uartAlert = (counter_uartAlert + 1) % 60;
+        lcd_StrCenter(0, 270, "ERROR!!!", GREEN, BLACK, 16, 1);
+        if (counter_uartAlert == 0)
+        {
+            flag_Error_TimeOut = 1;
+            return;
+        }
+    }
+    if (flag_Invalid == 1)
+    {
+        counter_uartAlert = (counter_uartAlert + 1) % 60;
+        lcd_StrCenter(0, 270, "INVALID", GREEN, BLACK, 16, 1);
+        if (counter_uartAlert == 0)
+        {
+            lcd_Fill(0, 270, 240, 290, BLACK);
+            flag_Invalid = 0;
+        }
     }
 }

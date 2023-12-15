@@ -59,18 +59,18 @@ void fsm_clock()
                 if (counterHour >= 24)
                     counterHour = 0;
             }
-            if (uart_input == 1)
+            if (uart_valid == 1)
             {
                 counterHour = number;
                 if (counterHour >= 24)
                 {
                     counterHour = counterHour % 24;
                 }
-                uart_input = 0;
+                uart_valid = 0;
                 auto_change_mode = 1;
-                counterTimeOut = 0;
-                flag_Error = 0;
+                counter_TimeOut = 0;
                 flag_TimeOut = 0;
+                flag_Error_TimeOut = 0;
             }
             break;
         default:
@@ -124,17 +124,17 @@ void fsm_clock()
                 if (counterMin >= 60)
                     counterMin = 0;
             }
-            if (uart_input == 1)
+            if (uart_valid == 1)
             {
                 counterMin = number;
                 if (counterMin >= 60)
                 {
                     counterMin = counterMin % 60;
                 }
-                uart_input = 0;
+                uart_valid = 0;
                 auto_change_mode = 1;
-                counterTimeOut = 0;
-                flag_Error = 0;
+                counter_TimeOut = 0;
+                flag_Error_TimeOut = 0;
                 flag_TimeOut = 0;
             }
             break;
@@ -189,17 +189,17 @@ void fsm_clock()
                 if (counterSec >= 60)
                     counterSec = 0;
             }
-            if (uart_input == 1)
+            if (uart_valid == 1)
             {
                 counterSec = number;
                 if (counterSec >= 60)
                 {
                     counterSec = counterSec % 60;
                 }
-                uart_input = 0;
+                uart_valid = 0;
                 auto_change_mode = 1;
-                counterTimeOut = 0;
-                flag_Error = 0;
+                counter_TimeOut = 0;
+                flag_Error_TimeOut = 0;
                 flag_TimeOut = 0;
             }
             break;
@@ -254,7 +254,7 @@ void fsm_clock()
                 if (counterDay >= 8)
                     counterDay = 1;
             }
-            if (uart_input == 1)
+            if (uart_valid == 1)
             {
                 counterDay = number;
                 if (counterDay >= 8)
@@ -265,10 +265,10 @@ void fsm_clock()
                     }
                     counterDay = counterDay % 8;
                 }
-                uart_input = 0;
+                uart_valid = 0;
                 auto_change_mode = 1;
-                counterTimeOut = 0;
-                flag_Error = 0;
+                counter_TimeOut = 0;
+                flag_Error_TimeOut = 0;
                 flag_TimeOut = 0;
             }
             break;
@@ -323,7 +323,7 @@ void fsm_clock()
                 if (counterDate >= 32)
                     counterDate = 1;
             }
-            if (uart_input == 1)
+            if (uart_valid == 1)
             {
                 counterDate = number;
                 if (counterDate >= 32)
@@ -334,10 +334,10 @@ void fsm_clock()
                     }
                     counterDate = counterDate % 32;
                 }
-                uart_input = 0;
+                uart_valid = 0;
                 auto_change_mode = 1;
-                counterTimeOut = 0;
-                flag_Error = 0;
+                counter_TimeOut = 0;
+                flag_Error_TimeOut = 0;
                 flag_TimeOut = 0;
             }
             break;
@@ -392,7 +392,7 @@ void fsm_clock()
                 if (counterMonth >= 13)
                     counterMonth = 1;
             }
-            if (uart_input == 1)
+            if (uart_valid == 1)
             {
                 counterMonth = number;
                 if (counterMonth >= 13)
@@ -403,10 +403,10 @@ void fsm_clock()
                     }
                     counterMonth = counterMonth % 13;
                 }
-                uart_input = 0;
+                uart_valid = 0;
                 auto_change_mode = 1;
-                counterTimeOut = 0;
-                flag_Error = 0;
+                counter_TimeOut = 0;
+                flag_Error_TimeOut = 0;
                 flag_TimeOut = 0;
             }
             break;
@@ -438,12 +438,12 @@ void fsm_clock()
         case NORMAL:
             lcd_StrCenter(0, 2, "UPDATING YEARS...", GREEN, BLACK, 16, 1);
             lcd_StrCenter(0, 20, "MODE CLOCK", YELLOW, BLACK, 16, 1);
-            // uart_Flag("Request years: ");
             if (isSendStr == 0)
             {
                 uart_Rs232SendString("Request years: ");
                 isSendStr = 1;
             }
+            uart_Flag("Request years: ");
             blinky(YEAR);
             break;
         default:
@@ -461,22 +461,15 @@ void fsm_clock()
                 if (counterYear >= 100)
                     counterYear = 0;
             }
-            if (uart_input == 1)
+            if (uart_valid == 1)
             {
-                if (number < 0)
-                {
-                    lcd_StrCenter(0, 250, "INVALID VALUE!!!", GREEN, BLACK, 16, 1);
-                }
-                else
-                {
-                    counterYear = number;
-                    counterYear = counterYear % 100;
-                    uart_input = 0;
-                    auto_change_mode = 1;
-                    counterTimeOut = 0;
-                    flag_Error = 0;
-                    flag_TimeOut = 0;
-                }
+                counterYear = number;
+                counterYear = counterYear % 100;
+                uart_valid = 0;
+                auto_change_mode = 1;
+                counter_TimeOut = 0;
+                flag_Error_TimeOut = 0;
+                flag_TimeOut = 0;
             }
             break;
         default:
@@ -516,9 +509,9 @@ void fsm_clock()
             isSendStr = 0;
             auto_change_mode = 0;
             lcd_ShowIntNum(70, 100, counterHour, 2, GREEN, BLACK, 24);
-            lcd_Fill(0, 0, 240, 20, BLACK); // Clear "UPDATING HOURS..."
+            lcd_Fill(0, 0, 240, 20, BLACK);  // Clear "UPDATING HOURS..."
             lcd_Fill(0, 20, 240, 40, BLACK); // Clear "MODE LOCK"
-            lcd_Fill(0, 270, 240, 290, BLACK); 
+            lcd_Fill(0, 270, 240, 290, BLACK);
             uart_Rs232SendString("\n");
         }
         break;
@@ -599,15 +592,17 @@ void fsm_clock()
         break;
     }
 
-    if (flag_Error == 2)
+    if (flag_Error_TimeOut == 1)
     {
         mode = MODE1;
+        mode_alarm = ALARM_MODE1;
         isSendStr = 0;
         auto_change_mode = 0;
         flag_TimeOut = 0;
-        flag_Error = 0;
+        flag_Error_TimeOut = 0;
         save_ClockSettings();
-        lcd_Fill(0, 0, 240, 20, BLACK); 
+        save_AlarmSettings();
+        lcd_Fill(0, 0, 240, 20, BLACK);
         lcd_Fill(0, 20, 240, 40, BLACK);
         lcd_Fill(0, 270, 240, 290, BLACK);
     }
